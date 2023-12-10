@@ -12,12 +12,38 @@ network <- igraph::graph_from_data_frame(d = links,
                                          vertices = nodes,
                                          directed = FALSE)
 
-length(network)
+nodes_sample <- sample(V(network), size = SAMPLE_SIZE)
 
-sub_network <- igraph::sample_asym_pref()(network, SAMPLE_SIZE)
+sub_graph <- igraph::induced.subgraph(network, nodes_sample)
 
-community_louvain <- igraph::cluster_louvain(network, weights = NULL )
+community_louvain_sub_graph <- igraph::cluster_louvain(sub_graph,
+                                                       weights = NULL)
 
-plot(community_louvain)
+cluster_info = function(cluster_result, algoname="louvain") {
+  print(sprintf("Community Detection Algo : %s", algoname))
+  print(sprintf("Community Sizes :%i", length(cluster_result)))
+  print(sprintf("Membership of %s ", algoname))
+  print(sprintf("Length of membership %i",
+                length(igraph::membership(cluster_result))))
+  top_communities <- get_top(cluster_result, 10)
+  print("Top %n Highest_degree")
+  print(top_communities)
+}
 
-knitr::kable(links %>% head(10))
+get_top <- function(community_result, n) {
+
+  sorted_communities <- sort(igraph::sizes(community_result),
+                                       decreasing = TRUE)
+  top_n_communities <- sorted_communities[1:n]
+  return (top_n_communities )
+
+}
+config_network = function(network, community_result, centrality, n = 10) {
+  igraph::V(network)$size <- centrality * 3
+  igraph::V(network)$label.cex <- 0.4
+  igraph::E(network)$arrow.size <- 10
+  plot(community_result, network)
+}
+
+config_network(network, community_infomap, centrality = degree_cent_net)
+cluster_info(community_infomap)
