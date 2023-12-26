@@ -1,3 +1,0 @@
-R Community Detection playlist : https://youtube.com/playlist?list=PLwrOoPWTJPLRUUWIF7R5YeG2n7CaHFl0T
-
-igraph docs : https://igraph.org/r/doc/
